@@ -1,0 +1,54 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main # Run on pushes to the main branch
+
+permissions:
+  id-token: write  # Required for OIDC authentication
+  contents: read   # Allows reading the repository contents
+
+jobs:
+  terraform:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::381491955630:role/GitHubActionsTerraformRole
+          role-session-name: GitHubActions
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: terraform
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+        working-directory: terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan \
+            -var="s3_bucket_name=cloud-ai-s3-bucket" \
+            -var="blockchain_admin_password=${{ secrets.BLOCKCHAIN_ADMIN_PASSWORD }}"
+        working-directory: terraform
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: |
+          terraform apply -auto-approve \
+            -var="s3_bucket_name=cloud-ai-s3-bucket" \
+            -var="blockchain_admin_password=${{ secrets.BLOCKCHAIN_ADMIN_PASSWORD }}"
+        working-directory: terraform
