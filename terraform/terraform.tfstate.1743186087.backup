@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.9.2",
-  "serial": 74,
+  "serial": 73,
   "lineage": "f53a9475-c37a-c683-4239-0b677deef965",
   "outputs": {
     "api_gateway_url": {
@@ -586,6 +586,25 @@
           "dependencies": [
             "aws_s3_bucket.lambda_bucket"
           ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "null_resource",
+      "name": "create_blockchain_network",
+      "provider": "provider[\"registry.terraform.io/hashicorp/null\"]",
+      "instances": [
+        {
+          "status": "tainted",
+          "schema_version": 0,
+          "attributes": {
+            "id": "45965787365100986",
+            "triggers": {
+              "always_run": "2025-03-28T18:18:06Z"
+            }
+          },
+          "sensitive_attributes": []
         }
       ]
     }
